@@ -1,6 +1,7 @@
 import { Strategy as PassportStrategy } from "passport-strategy";
 import { SAML } from "../node-saml";
 import * as url from "url";
+import type { Request } from "express";
 import {
   AuthenticateOptions,
   RequestWithUser,
@@ -45,7 +46,7 @@ export abstract class AbstractStrategy extends PassportStrategy {
     this._passReqToCallback = !!options.passReqToCallback;
   }
 
-  authenticate(req: RequestWithUser, options: AuthenticateOptions): void {
+  authenticate(req: Request, options: AuthenticateOptions): void {
     if (this._saml == null) {
       throw new Error("Can't get authenticate without a SAML provider defined.");
     }
@@ -173,7 +174,7 @@ export abstract class AbstractStrategy extends PassportStrategy {
     }
     const RelayState = (req.query && req.query.RelayState) || (req.body && req.body.RelayState);
     this._saml
-      .getLogoutUrlAsync(req.user as Profile, RelayState, {})
+      .getLogoutUrlAsync(req.samlUser as Profile, RelayState, {})
       .then((url) => callback(null, url))
       .catch((err) => callback(err));
   }
